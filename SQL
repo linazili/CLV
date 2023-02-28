@@ -1,0 +1,38 @@
+WITH t1 AS 
+(SELECT DISTINCT user_pseudo_id,
+DATE_TRUNC(DATE (TIMESTAMP_MICROS(MIN(event_timestamp))),week)  AS weeks,
+FROM turing_data_analytics.raw_events
+GROUP BY 1
+),
+purchase AS (
+    SELECT user_pseudo_id,
+           purchase_revenue_in_usd AS revenue,
+           DATE_TRUNC(DATE (TIMESTAMP_MICROS(event_timestamp)),week) AS purchase
+    FROM turing_data_analytics.raw_events
+    WHERE event_name IN ('purchase')
+),
+t2 as (
+    SELECT t1.user_pseudo_id, weeks,purchase, revenue
+    FROM t1 
+     LEFT JOIN purchase p
+          ON t1.user_pseudo_id = p.user_pseudo_id
+)
+SELECT 
+    weeks,
+    SUM(CASE WHEN t2.purchase = weeks THEN t2.revenue END)/COUNT(DISTINCT user_pseudo_id) AS week_0,
+    SUM(CASE WHEN t2.purchase = DATE_ADD(weeks, INTERVAL 1 week) THEN revenue END)/COUNT(DISTINCT user_pseudo_id) as week_1,
+    SUM(CASE WHEN t2.purchase = DATE_ADD(weeks, INTERVAL 2 week) THEN revenue END)/COUNT(DISTINCT user_pseudo_id) as week_2,
+    SUM(CASE WHEN t2.purchase = DATE_ADD(weeks, INTERVAL 3 week) THEN revenue END)/COUNT(DISTINCT user_pseudo_id) as week_3,
+    SUM(CASE WHEN t2.purchase = DATE_ADD(weeks, INTERVAL 4 week) THEN revenue END)/COUNT(DISTINCT user_pseudo_id) as week_4,
+    SUM(CASE WHEN t2.purchase = DATE_ADD(weeks, INTERVAL 5 week) THEN revenue END)/COUNT(DISTINCT user_pseudo_id) as week_5,
+    SUM(CASE WHEN t2.purchase = DATE_ADD(weeks, INTERVAL 6 week) THEN revenue END)/COUNT(DISTINCT user_pseudo_id) as week_6,
+    SUM(CASE WHEN t2.purchase = DATE_ADD(weeks, INTERVAL 7 week) THEN revenue END)/COUNT(DISTINCT user_pseudo_id) as week_7,
+    SUM(CASE WHEN t2.purchase = DATE_ADD(weeks, INTERVAL 8 week) THEN revenue END)/COUNT(DISTINCT user_pseudo_id) as week_8,
+    SUM(CASE WHEN t2.purchase = DATE_ADD(weeks, INTERVAL 9 week) THEN revenue END)/COUNT(DISTINCT user_pseudo_id) as week_9,
+    SUM(CASE WHEN t2.purchase = DATE_ADD(weeks, INTERVAL 10 week) THEN revenue END)/COUNT(DISTINCT user_pseudo_id) as week_10,
+    SUM(CASE WHEN t2.purchase = DATE_ADD(weeks, INTERVAL 11 week) THEN revenue END)/COUNT(DISTINCT user_pseudo_id) as week_11,
+    SUM(CASE WHEN t2.purchase = DATE_ADD(weeks, INTERVAL 12 week) THEN revenue END)/COUNT(DISTINCT user_pseudo_id) as week_12,
+    SUM(CASE WHEN t2.purchase = DATE_ADD(weeks,INTERVAL 13 week) THEN revenue END)/COUNT(DISTINCT user_pseudo_id) AS week_13
+FROM t2
+GROUP BY 1
+ORDER BY 1
